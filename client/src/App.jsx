@@ -5,6 +5,8 @@ import Login from "./login";
 import Schedule from "./Schedule";
 import Home from "./Home";
 import "./App.css";
+import Register from "./Register";
+
 
 function AppContent() {
   const { userName, logout } = useUser();
@@ -51,7 +53,7 @@ function AppContent() {
 
           {userName ? (
             <>
-              <span style={{ color: "blue", fontWeight: "bold" }}>
+              <span style={{ color: "black", fontFamily: "Great Vibes" }}>
                 Welcome, {userName}
               </span>
               <button
@@ -60,8 +62,9 @@ function AppContent() {
                   background: "none",
                   border: "none",
                   color: "red",
-                  fontWeight: "bold",
+                  // fontWeight: "bold",
                   cursor: "pointer",
+                  fontFamily: "'Great Vibes', cursive",
                 }}
               >
                 Logout
@@ -84,6 +87,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );

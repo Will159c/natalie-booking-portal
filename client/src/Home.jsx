@@ -4,11 +4,10 @@ export default function Home() {
   const [lightboxImage, setLightboxImage] = useState(null);
 
   const images = [
-    "nail-art(1).jpg",
-    "nail-art(2).jpg",
-    "nail-art(3).jpg",
-    "nail-art(4).jpg",
-    "nail-art(5).jpg",
+    "nails(2).JPG",
+    "nails(3).JPG",
+    "nails(4).JPG",
+    "nails(5).JPG",
     // Add more image filenames as needed
   ];
 
@@ -27,7 +26,7 @@ export default function Home() {
       </p>
 
       <img
-        src="/nail-art(1).jpg"
+        src="/nails(1).JPG"
         alt="nail art(1)"
         style={{ width: "500px", borderRadius: "10px", marginTop: "1rem" }}
       />
