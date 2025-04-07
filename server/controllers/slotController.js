@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const createSlot = async (req, res) => {
     try {
-        const { date, time } = req.body;
-        const newSlot = new TimeSlot({ date, time });
+        const { date, time, location } = req.body;
+        const newSlot = new TimeSlot({ date, time, location });
         await newSlot.save();
         res.status(201).json({ message: 'Slot created successfully', slot: newSlot });
     } catch (error) {
