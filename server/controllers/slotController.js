@@ -1,6 +1,7 @@
 const TimeSlot = require('../models/TimeSlot');
 const bcrypt = require('bcrypt'); 
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const createSlot = async (req, res) => {
     try {
@@ -49,26 +50,50 @@ const unbookSlot = async (req, res) => {
 
 const getBookedSlots = async (req, res) => {
     try {
-        const slots = await TimeSlot.find({ isBooked: true });
-        res.status(200).json(slots);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching booked slots', error: error.message });
+      const slots = await TimeSlot.find({ isBooked: true }).populate('bookedBy', 'name email');
+      res.status(200).json(slots);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch booked slots", error: err.message });
     }
-};
+  };  
 
 const bookSlot = async (req, res) => {
     try {
-        const { slotId, userId } = req.body;
-        const slot = await TimeSlot.findById(slotId);
-        if (!slot) return res.status(404).json({ message: 'Slot not found' });
-        if (slot.isBooked) return res.status(400).json({ message: 'Slot already booked' });
-        slot.isBooked = true;
-        slot.user = userId;
-        await slot.save();
-        res.status(200).json({ message: 'Slot booked successfully', slot });
-    } catch (error) {
-        res.status(500).json({ message: 'Error booking slot', error: error.message });
+      const { slotId } = req.body;
+      const token = req.headers.authorization?.split(" ")[1];
+  
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+  
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+  
+      const slot = await TimeSlot.findById(slotId);
+      if (!slot) return res.status(404).json({ message: "Slot not found" });
+      if (slot.isBooked) return res.status(400).json({ message: "Slot already booked" });
+  
+      slot.isBooked = true;
+      slot.bookedBy = userId;
+      await slot.save();
+  
+      res.status(200).json({ message: "Slot booked successfully!" });
+    } catch (err) {
+      res.status(500).json({ message: "Booking failed", error: err.message });
     }
-};
+  };
 
-module.exports = { createSlot, getAvailableSlots, bookSlot, getBookedSlots, removeSlot, unbookSlot };
+  const getMyBookings = async (req, res) => {
+    try {
+      const token = req.headers.authorization?.split(" ")[1];
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+  
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+  
+      const mySlots = await TimeSlot.find({ bookedBy: userId }).sort({ date: 1 });
+      res.status(200).json(mySlots);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch your bookings", error: err.message });
+    }
+  };  
+
+module.exports = { createSlot, getAvailableSlots, bookSlot, getBookedSlots, removeSlot, unbookSlot, getMyBookings };
