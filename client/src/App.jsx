@@ -6,11 +6,15 @@ import Schedule from "./Schedule";
 import Home from "./Home";
 import "./App.css";
 import Register from "./Register";
-
+import AdminLogin from "./AdminDashboard";
+import AdminDashboard from "./AdminDashboard"; 
 
 function AppContent() {
   const { userName, logout } = useUser();
+  const isAdmin = !!localStorage.getItem("adminToken");
+
   console.log("Current userName:", userName);
+  
 
   return (
     <Router>
@@ -51,6 +55,17 @@ function AppContent() {
             Schedule
           </NavLink>
 
+          {isAdmin && (
+            <NavLink
+              to="/admin/dashboard"
+              className={({ isActive }) =>
+                isActive ? "nav-link nav-link-active" : "nav-link"
+              }
+            >
+              Admin Dashboard
+            </NavLink>
+          )}
+
           {userName ? (
             <>
               <span style={{ color: "black", fontFamily: "Great Vibes" }}>
@@ -62,7 +77,6 @@ function AppContent() {
                   background: "none",
                   border: "none",
                   color: "red",
-                  // fontWeight: "bold",
                   cursor: "pointer",
                   fontFamily: "'Great Vibes', cursive",
                 }}
@@ -86,8 +100,10 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/schedule" element={<Schedule />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

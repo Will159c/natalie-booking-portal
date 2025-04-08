@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency folders
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Env files
+.env
+server/.env
+
+# OS and editor junk
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Optional project files
+*.local
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

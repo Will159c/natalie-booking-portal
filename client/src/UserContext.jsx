@@ -29,8 +29,10 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("adminToken");
     setUserName(null);
   };
+  
 
   return (
     <UserContext.Provider value={{ userName, login, logout }}>

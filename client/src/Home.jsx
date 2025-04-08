@@ -8,46 +8,55 @@ export default function Home() {
     "nails(3).JPG",
     "nails(4).JPG",
     "nails(5).JPG",
-    // Add more image filenames as needed
   ];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "1rem",
-      }}
-    >
-      <h1>Welcome to Natalie's Booking Portal</h1>
-      <p>
-        This is where you can learn about her services and book appointments.
-      </p>
+    <div style={{ padding: "2rem" }}>
+      <h1 style={{ textAlign: "center", fontSize: "2.5rem", marginBottom: "2rem" }}>
+        Welcome to Natalie's Booking Portal
+      </h1>
 
-      <img
-        src="/nails(1).JPG"
-        alt="nail art(1)"
-        style={{ width: "500px", borderRadius: "10px", marginTop: "1rem" }}
-      />
-
-      <h2>About Natalie</h2>
-      <p>
-        Natalie is a licensed nail technician who provides personalized nail
-        services.
-      </p>
-
-      {/* Divider line */}
-      <hr
+      {/* About Section */}
+      <div
         style={{
-          width: "150%",
-          margin: "2rem 0 2rem",
-          border: "none",
-          borderTop: "1px solid #333",
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "3rem",
+          flexWrap: "wrap",
+          marginBottom: "4rem",
         }}
-      />
+      >
+        <div style={{ maxWidth: "500px", textAlign: "left", fontSize: "1.1rem", lineHeight: "1.7" }}>
+          <h2 style={{ marginBottom: "1rem" }}>About Natalie</h2>
+          <p>
+            Hi! I’m a beginner nail tech based in the northern Los Angeles area with a passion for all things art,
+            beauty, and self-care. I’m inspired by colors, creativity, and the little details that make each set of
+            nails unique. I love experimenting with new designs and techniques and always enjoy trying something fresh.
+            Whether it’s through bold art or soft elegance, my goal is to help others feel confident and cared for—one
+            nail at a time!
+          </p>
+        </div>
 
-      <h2 style={{ marginBottom: "2rem", fontSize: "2rem" }}>Nail Portfolio</h2>
+        <img
+          src="/nails(1).JPG"
+          alt="nail art"
+          style={{
+            width: "350px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+          }}
+        />
+      </div>
+
+      <hr style={{ width: "90%", margin: "2rem auto", borderTop: "1px solid #ccc" }} />
+
+      {/* Portfolio Section */}
+      <h2 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "1rem" }}>Nail Portfolio</h2>
+      <p style={{ textAlign: "center", marginBottom: "2rem", fontSize: "1rem", color: "#555" }}>
+        A showcase of past designs and styles crafted by Natalie.
+      </p>
 
       <div
         style={{
@@ -55,27 +64,21 @@ export default function Home() {
           gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
           gap: "1rem",
           padding: "0 2rem",
-          width: "100%",
           maxWidth: "1000px",
+          margin: "0 auto 3rem",
         }}
       >
         {images.map((img, i) => (
           <div
             key={i}
-            style={{
-              cursor: "pointer",
-              transition: "transform 0.3s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "rotate(3deg) scale(1.05)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.transform = "rotate(0deg) scale(1)")
-            }
+            style={{ cursor: "pointer", transition: "transform 0.3s ease" }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             onClick={() => setLightboxImage(img)}
           >
             <img
               src={`/${img}`}
+              alt={`Nail design ${i + 2}`}
               style={{ width: "100%", borderRadius: "10px" }}
             />
           </div>
@@ -111,7 +114,49 @@ export default function Home() {
           />
         </div>
       )}
+
+      <hr style={{ width: "90%", margin: "3rem auto 2rem", borderTop: "1px solid #ccc" }} />
+
+      {/* Contact Info Section */}
+      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>Contact Info</h2>
+
+        {/* Horizontal Row */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "2rem",
+            flexWrap: "wrap",
+            marginBottom: "1rem"
+          }}
+        >
+          <p style={{ fontSize: "1rem", color: "#444", margin: 0 }}>
+            📞 (123) 456-7890
+          </p>
+          <p style={{ fontSize: "1rem", color: "#444", margin: 0 }}>
+            📧 <a href="mailto:natalie@example.com">natalie@example.com</a>
+          </p>
+          <a
+            href="https://www.instagram.com/nx3nails?igsh=NTc4MTIwNjQ2YQ=="
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Visit Instagram"
+          >
+            <img
+              src="/Instagram_icon.png"
+              alt="Instagram"
+              style={{ width: "30px", height: "30px" }}
+            />
+          </a>
+        </div>
+
+        {/* Underneath Text */}
+        <p style={{ fontSize: "0.95rem", color: "#777" }}>
+          Reach out to book custom sets, ask questions, or check availability.
+        </p>
+      </div>
     </div>
   );
 }
-
