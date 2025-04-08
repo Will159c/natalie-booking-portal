@@ -24,13 +24,18 @@ const getAvailableSlots = async (req, res) => {
 
 const removeSlot = async (req, res) => {
     try {
-        const { slotId } = req.body;
-        await TimeSlot.findByIdAndDelete(slotId);
-        res.status(200).json({ message: 'Slot removed successfully' });
+      const { slotId } = req.body;
+  
+      if (!slotId) {
+        return res.status(400).json({ message: "Missing slotId" });
+      }
+  
+      await TimeSlot.findByIdAndDelete(slotId);
+      res.status(200).json({ message: "Slot removed successfully" });
     } catch (error) {
-        res.status(500).json({ message: 'Error removing slot', error: error.message });
+      res.status(500).json({ message: "Error removing slot", error: error.message });
     }
-};
+};  
 
 const unbookSlot = async (req, res) => {
     try {
