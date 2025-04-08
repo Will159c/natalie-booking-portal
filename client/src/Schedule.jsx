@@ -9,6 +9,8 @@ export default function Schedule() {
   const [date, setDate] = useState(new Date());
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDateSlots, setSelectedDateSlots] = useState([]);
+  const [bookingMessage, setBookingMessage] = useState('');
+  const [isBookingSuccess, setIsBookingSuccess] = useState(null);
   const { userName } = useUser();
   const navigate = useNavigate();
 
@@ -26,13 +28,16 @@ export default function Schedule() {
   };
 
   const handleDateChange = (newDate) => {
+    if (newDate.toDateString() !== date.toDateString()) {
+      setBookingMessage(""); 
+    }
     setDate(newDate);
     const dayStr = newDate.toISOString().split('T')[0];
     const slotsForDay = availableSlots.filter(slot =>
       new Date(slot.date).toISOString().split('T')[0] === dayStr
     );
     setSelectedDateSlots(slotsForDay);
-  };
+  };  
 
   const handleBook = async (slotId) => {
     const token = localStorage.getItem('token');
@@ -47,11 +52,13 @@ export default function Schedule() {
         { slotId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Booking confirmed!");
+      setBookingMessage("Booking confirmed!");
+      setIsBookingSuccess(true);
       fetchSlots();
       handleDateChange(date);
     } catch (err) {
-      alert("Booking failed.");
+      setBookingMessage("Booking failed. Please try again.");
+      setIsBookingSuccess(false);
       console.error(err);
     }
   };
@@ -77,66 +84,115 @@ export default function Schedule() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Left Image Section */}
+      {/* Left Image */}
       <div
         style={{
-          flex: '1',
+          flex: 1.5,
           backgroundImage: 'url("/schedulePicture(1).jpg")',
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
         }}
       />
 
-      {/* Right Content Section */}
-      <div style={{ flex: '1.3', padding: '3rem' }}>
-        <h2 style={{ fontSize: '2.5rem', textAlign: 'center' }}>Schedule an Appointment</h2>
-        <p style={{ fontSize: '1.2rem', textAlign: 'center' }}>
+      {/* Right Side */}
+      <div style={{ flex: 1, padding: '4rem 3rem' }}>
+        <h2 style={{ fontSize: '2.5rem', textAlign: 'center', fontWeight: '500' }}>
+          Schedule an Appointment
+        </h2>
+        <p style={{ fontSize: '1.1rem', textAlign: 'center', color: '#444' }}>
           Select a date to view and book available times.
         </p>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '2rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '4rem',
+            marginTop: '3rem',
+            flexWrap: 'wrap',
+          }}
+        >
           {/* Calendar */}
-          <div>
+          <div
+            style={{
+              margin: '0 auto',
+              transform: 'scale(1.2)',
+              transformOrigin: 'center',
+            }}
+          >
             <Calendar
               onChange={handleDateChange}
               value={date}
               tileContent={tileContent}
             />
+
+            {bookingMessage && (
+              <div
+                style={{
+                  marginTop: '1.5rem',
+                  padding: '0.75rem',
+                  borderRadius: '5px',
+                  backgroundColor: isBookingSuccess ? '#d4edda' : '#f8d7da',
+                  color: isBookingSuccess ? '#155724' : '#721c24',
+                  border: `1px solid ${isBookingSuccess ? '#c3e6cb' : '#f5c6cb'}`,
+                  textAlign: 'center',
+                  fontSize: '0.95rem'
+                }}
+              >
+                {bookingMessage}
+              </div>
+            )}
           </div>
 
-          {/* Slot Info Box */}
+          {/* Slot Info */}
           <div
             style={{
-              background: '#f5f5f5',
+              background: '#f9f9f9',
               padding: '2rem',
-              borderRadius: '10px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              width: '300px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'flex-start'
+              maxWidth: '350px',
+              width: '100%',
             }}
           >
             {selectedDateSlots.length > 0 ? (
               <>
-                <h3 style={{ textAlign: 'center' }}>{date.toDateString()}</h3>
-                <p><strong>Location:</strong> {selectedDateSlots[0]?.location}</p>
-                <p><strong>Available Times:</strong></p>
-                <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                  {date.toDateString()}
+                </h3>
+                <p>
+                  <strong>Location:</strong> {selectedDateSlots[0]?.location}
+                </p>
+                <p>
+                  <strong>Available Times:</strong>
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {selectedDateSlots.map((slot, i) => (
-                    <li key={i} style={{ marginBottom: '0.5rem' }}>
-                      {slot.time}
+                    <li
+                      key={i}
+                      style={{
+                        marginBottom: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between'
+                      }}
+                    >
+                      <span style={{ fontSize: '1rem', marginRight: '0.5rem' }}>
+                        {slot.time}
+                      </span>
                       <button
+                        onClick={() => handleBook(slot._id)}
                         style={{
-                          marginLeft: '1rem',
-                          padding: '0.25rem 0.5rem',
-                          background: 'blue',
+                          padding: '0.35rem 0.75rem',
+                          background: '#222',
                           color: 'white',
                           border: 'none',
                           borderRadius: '4px',
-                          cursor: 'pointer'
+                          fontSize: '0.85rem',
+                          cursor: 'pointer',
                         }}
-                        onClick={() => handleBook(slot._id)}
                       >
                         Book
                       </button>
@@ -145,7 +201,7 @@ export default function Schedule() {
                 </ul>
               </>
             ) : (
-              <p style={{ textAlign: 'center', marginTop: '2rem' }}>
+              <p style={{ textAlign: 'center', marginTop: '2rem', color: '#666' }}>
                 Select a date with a black dot to view available times and location.
               </p>
             )}

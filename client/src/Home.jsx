@@ -154,7 +154,7 @@ export default function Home() {
 
         {/* Underneath Text */}
         <p style={{ fontSize: "0.95rem", color: "#777" }}>
-          Reach out to book custom sets, ask questions, or check availability.
+          Reach out to book custom sets or ask questions.
         </p>
       </div>
     </div>

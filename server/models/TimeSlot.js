@@ -5,7 +5,7 @@ const TimeSlotSchema = new mongoose.Schema({
   time: { type: String, required: true },
   location: { type: String, required: true },
   isBooked: { type: Boolean, default: false },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } 
 });
 
 module.exports = mongoose.model('TimeSlot', TimeSlotSchema);

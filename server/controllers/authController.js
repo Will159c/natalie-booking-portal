@@ -1,6 +1,30 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const sendVerificationEmail = require('../utils/mailer');
+require('dotenv').config();
+
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      decoded.userId,
+      { isVerified: true },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send("User not found.");
+    }
+
+    res.send("Email successfully verified! You can now log in.");
+  } catch (err) {
+    res.status(400).send("Invalid or expired verification link.");
+  }
+};
 
 const register = async (req, res) => {
   try {
@@ -19,7 +43,10 @@ const register = async (req, res) => {
     const newUser = new User({ name, email, password: hashedPassword, isAdmin: isAdmin || false });
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {expiresIn: '1h',});
+    await sendVerificationEmail(newUser.email, token);
+
+    res.status(201).json({message: 'User registered successfully. A verification email has been sent. Please check your inbox.',});
   } catch (err) {
     res.status(500).json({ message: 'Error registering user', error: err.message });
   }
@@ -35,6 +62,10 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });
 
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email before logging in.' });
+    }    
+
     const token = jwt.sign(
       { userId: user._id, name: user.name, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
@@ -47,4 +78,28 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "User already verified" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    await sendVerificationEmail(user.email, token);
+
+    res.status(200).json({ message: "Verification email resent!" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to resend verification email", error: err.message });
+  }
+};
+
+module.exports = { register, login, verifyEmail, resendVerification };
