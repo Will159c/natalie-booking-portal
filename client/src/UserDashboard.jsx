@@ -20,6 +20,15 @@ export default function UserDashboard() {
     }
   };
 
+  const formatDate = (dateStr) =>
+    new Date(dateStr + "T00:00:00Z").toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
   return (
     <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
       <h2 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "2rem" }}>
@@ -42,7 +51,7 @@ export default function UserDashboard() {
               }}
             >
               <h4 style={{ margin: "0 0 0.5rem", fontWeight: "600" }}>
-                {new Date(slot.date).toDateString()} @ {slot.time}
+                {formatDate(slot.date)} @ {slot.time}
               </h4>
               <p style={{ margin: 0, color: "#444" }}>
                 <strong>Location:</strong> {slot.location}
@@ -53,7 +62,14 @@ export default function UserDashboard() {
       )}
 
       {/* Contact Message */}
-      <div style={{ marginTop: "2.5rem", textAlign: "center", color: "#888", fontSize: "0.95rem" }}>
+      <div
+        style={{
+          marginTop: "2.5rem",
+          textAlign: "center",
+          color: "#888",
+          fontSize: "0.95rem",
+        }}
+      >
         Need to cancel? Contact me at <strong>(555) 123-4567</strong>
       </div>
     </div>

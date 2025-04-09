@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   const [slots, setSlots] = useState([]);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [isDeleteSuccess, setIsDeleteSuccess] = useState(null);
-  const [bookedSlots, setBookedSlots] = useState([]); // New state for booked slots
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   const token = localStorage.getItem("adminToken");
 
@@ -85,6 +85,7 @@ export default function AdminDashboard() {
       setIsDeleteSuccess(false);
     }
   };
+
   const handleUnbookSlot = async (slotId) => {
     try {
       await axios.post(
@@ -92,26 +93,56 @@ export default function AdminDashboard() {
         { slotId },
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      fetchSlots(); 
+      fetchSlots();
+      fetchBookedSlots();
     } catch (err) {
       alert("Failed to cancel booking: " + (err.response?.data?.message || err.message));
     }
   };
-  
+
+  const formatDate = (dateStr) =>
+    new Date(dateStr + "T00:00:00Z").toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
   return (
     <div style={{ padding: "2rem", maxWidth: "700px", margin: "auto" }}>
       <h2 style={{ textAlign: "center" }}>Create a Time Slot</h2>
-      <form onSubmit={handleCreateSlot} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        <input type="text" value={time} placeholder="Time (e.g. 1:00 PM)" onChange={(e) => setTime(e.target.value)} required />
-        <input type="text" value={location} placeholder="Location" onChange={(e) => setLocation(e.target.value)} required />
+      <form
+        onSubmit={handleCreateSlot}
+        style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+      >
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          value={time}
+          placeholder="Time (e.g. 1:00 PM)"
+          onChange={(e) => setTime(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          value={location}
+          placeholder="Location"
+          onChange={(e) => setLocation(e.target.value)}
+          required
+        />
         <button type="submit">Create Slot</button>
       </form>
-  
+
       {message && (
         <div
           style={{
@@ -126,7 +157,7 @@ export default function AdminDashboard() {
           {message}
         </div>
       )}
-  
+
       {deleteMessage && (
         <div
           style={{
@@ -141,7 +172,7 @@ export default function AdminDashboard() {
           {deleteMessage}
         </div>
       )}
-  
+
       <h3 style={{ marginTop: "2rem", textAlign: "center" }}>Existing Slots</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {slots.map((slot) => (
@@ -156,7 +187,7 @@ export default function AdminDashboard() {
             }}
           >
             <span>
-              {new Date(slot.date).toDateString()} @ {slot.time} ({slot.location})
+              {formatDate(slot.date)} @ {slot.time} ({slot.location})
             </span>
             <button
               onClick={() => handleDeleteSlot(slot._id)}
@@ -175,7 +206,7 @@ export default function AdminDashboard() {
           </li>
         ))}
       </ul>
-  
+
       <h3 style={{ marginTop: "3rem", textAlign: "center" }}>Booked Slots</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {bookedSlots.map((slot) => (
@@ -190,8 +221,12 @@ export default function AdminDashboard() {
             }}
           >
             <div>
-              <strong>{new Date(slot.date).toDateString()} @ {slot.time}</strong> ({slot.location})<br />
-              <span><strong>Booked by:</strong> {slot.bookedBy?.name || 'Unknown'} ({slot.bookedBy?.email || 'No email'})</span>
+              <strong>{formatDate(slot.date)} @ {slot.time}</strong> ({slot.location})
+              <br />
+              <span>
+                <strong>Booked by:</strong> {slot.bookedBy?.name || "Unknown"} (
+                {slot.bookedBy?.email || "No email"})
+              </span>
             </div>
             <button
               onClick={() => handleUnbookSlot(slot._id)}

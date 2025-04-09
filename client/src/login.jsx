@@ -13,6 +13,14 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Basic validation: check if email and password are present
+    if (!email.trim() || !password.trim()) {
+      setIsSuccess(false);
+      setMessage("Invalid email or password");
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
         email,
@@ -36,8 +44,8 @@ export default function Login() {
         navigate("/");
       }, 1000);
     } catch (err) {
-      setMessage("Login failed: " + (err.response?.data?.message || err.message));
       setIsSuccess(false);
+      setMessage("Invalid email or password");
     }
   };
 
@@ -47,12 +55,14 @@ export default function Login() {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
+        alignItems: "start",
         background: "#f9f9f9",
         paddingTop: "10vh",
       }}
     >
       <form
         onSubmit={handleLogin}
+        noValidate
         style={{
           background: "white",
           padding: "2rem",
@@ -66,6 +76,7 @@ export default function Login() {
         }}
       >
         <h2 style={{ textAlign: "center", fontWeight: "500" }}>Login</h2>
+
         <input
           type="email"
           placeholder="Email"

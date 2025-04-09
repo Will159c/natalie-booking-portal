@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const TimeSlotSchema = new mongoose.Schema({
-  date: { type: Date, required: true },
+  date: { type: String, required: true },
   time: { type: String, required: true },
   location: { type: String, required: true },
   isBooked: { type: Boolean, default: false },

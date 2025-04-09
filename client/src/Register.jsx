@@ -7,36 +7,32 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [showResend, setShowResend] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(null);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Basic email validation
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name || !isEmailValid || !password) {
+      setIsSuccess(false);
+      setMessage("Invalid email");
+      return;
+    }
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post("http://localhost:5000/api/auth/register", {
         name,
         email,
         password,
       });
 
-      setMessage(res.data.message || "Account created! Please check your email to verify.");
-      setIsSuccess(true);
-      setShowResend(true);
-    } catch (err) {
-      setMessage("Registration failed: " + (err.response?.data?.message || err.message));
-      setIsSuccess(false);
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/resend", { email });
-      setMessage(res.data.message || "Verification email resent!");
+      setMessage("Account created! Please check your email to verify.");
       setIsSuccess(true);
     } catch (err) {
-      setMessage("Error resending email: " + (err.response?.data?.message || err.message));
       setIsSuccess(false);
+      setMessage("Invalid email");
     }
   };
 
@@ -46,12 +42,14 @@ export default function Register() {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
+        alignItems: "start",
         background: "#f9f9f9",
         paddingTop: "10vh",
       }}
     >
       <form
         onSubmit={handleRegister}
+        noValidate
         style={{
           background: "white",
           padding: "2rem",
@@ -65,6 +63,7 @@ export default function Register() {
         }}
       >
         <h2 style={{ textAlign: "center", fontWeight: "500" }}>Register</h2>
+
         <input
           type="text"
           placeholder="Name"
@@ -116,24 +115,19 @@ export default function Register() {
           Register
         </button>
 
-        {showResend && (
-          <button
-            type="button"
-            onClick={handleResend}
-            style={{
-              background: "none",
-              color: "#007bff",
-              border: "none",
-              cursor: "pointer",
-              textDecoration: "underline",
-              fontSize: "0.85rem",
-              textAlign: "center",
-              marginTop: "0.5rem",
-            }}
-          >
-            Resend Verification Email
-          </button>
-        )}
+        <span
+          onClick={() => navigate("/login")}
+          style={{
+            fontSize: "0.85rem",
+            color: "#007bff",
+            marginTop: "0.25rem",
+            textAlign: "center",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          or login
+        </span>
 
         {message && (
           <div
