@@ -40,17 +40,17 @@ export default function Home() {
         </div>
 
         <img
-          src="/nails(1).JPG"
+          src="/nataliepicture.jpeg"
           alt="nail art"
           style={{
-            width: "350px",
-            borderRadius: "12px",
+            width: "400px",
+            borderRadius: "15px",
             boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
           }}
         />
       </div>
 
-      <hr style={{ width: "90%", margin: "2rem auto", borderTop: "1px solid #ccc" }} />
+      <hr style={{ width: "90%", margin: "2rem auto", borderTop: "2px solid #ccc" }} />
 
       {/* Portfolio Section */}
       <h2 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "1rem" }}>Nail Portfolio</h2>

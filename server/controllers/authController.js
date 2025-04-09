@@ -56,25 +56,32 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
+    // Compare passwords
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!match) {
+      return res.status(401).json({ message: "Invalid credentials" }); }
 
+    // Check if verified
     if (!user.isVerified) {
-      return res.status(403).json({ message: 'Please verify your email before logging in.' });
-    }    
+      return res.status(403).json({ message: "Please verify your email before logging in." });
+    }
 
+    // Sign JWT
     const token = jwt.sign(
       { userId: user._id, name: user.name, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({ token, name: user.name });
   } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
+    res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
 
