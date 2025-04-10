@@ -10,7 +10,7 @@ const verifyUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // This will now be available in your controller (req.user.userId)
+    req.user = decoded; 
     next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid or expired token.' });

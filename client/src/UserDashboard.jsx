@@ -70,7 +70,7 @@ export default function UserDashboard() {
           fontSize: "0.95rem",
         }}
       >
-        Need to cancel? Contact me at <strong>(555) 123-4567</strong>
+        Need to cancel? Contact me at <strong>(661) 313-3802</strong>
       </div>
     </div>
   );
