@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,10 +13,20 @@ app.use(express.json());
 // Routes
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
+
 const slotRoutes = require('./routes/slotRoutes');
 app.use('/api/slots', slotRoutes);
 
-// Test route
+// Serve React frontend (only in production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+}
+
+// Root route for testing
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
