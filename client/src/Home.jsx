@@ -133,10 +133,10 @@ export default function Home() {
           }}
         >
           <p style={{ fontSize: "1rem", color: "#444", margin: 0 }}>
-            📞 (123) 456-7890
+            📞 (661) 313-3802
           </p>
           <p style={{ fontSize: "1rem", color: "#444", margin: 0 }}>
-            📧 <a href="mailto:natalie@example.com">natalie@example.com</a>
+            📧 <a href="mailto:natalie@example.com">nx3nails@gmail.com</a>
           </p>
           <a
             href="https://www.instagram.com/nx3nails?igsh=NTc4MTIwNjQ2YQ=="

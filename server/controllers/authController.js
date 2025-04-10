@@ -1,8 +1,9 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const sendVerificationEmail = require('../utils/mailer');
+const { sendVerificationEmail } = require('../utils/mailer');
 require('dotenv').config();
+const axios = require("axios");
 
 const verifyEmail = async (req, res) => {
   try {
@@ -52,27 +53,43 @@ const register = async (req, res) => {
   }
 };
 
+
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, captcha } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (captcha) {
+      const captchaRes = await axios.post(
+        `https://www.google.com/recaptcha/api/siteverify`,
+        null,
+        {
+          params: {
+            secret: process.env.RECAPTCHA_SECRET,
+            response: captcha,
+          },
+        }
+      );
+
+      if (!captchaRes.data.success) {
+        return res.status(400).json({ message: "CAPTCHA verification failed" });
+      }
     }
 
-    // Compare passwords
+    // 🔐 Proceed with login as usual
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Invalid email or password" });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: "Invalid credentials" }); }
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
-    // Check if verified
     if (!user.isVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in." });
     }
 
-    // Sign JWT
     const token = jwt.sign(
       { userId: user._id, name: user.name, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
@@ -81,6 +98,7 @@ const login = async (req, res) => {
 
     res.status(200).json({ token, name: user.name });
   } catch (err) {
+    console.error("Login error:", err.message);
     res.status(500).json({ message: "Login failed", error: err.message });
   }
 };

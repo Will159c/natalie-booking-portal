@@ -11,12 +11,26 @@ export default function Schedule() {
   const [selectedDateSlots, setSelectedDateSlots] = useState([]);
   const [bookingMessage, setBookingMessage] = useState('');
   const [isBookingSuccess, setIsBookingSuccess] = useState(null);
+  const [fadeIn, setFadeIn] = useState(false);
   const { userName } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchSlots();
   }, []);
+
+  useEffect(() => {
+    if (bookingMessage) {
+      setFadeIn(true);
+      const timeout = setTimeout(() => {
+        setFadeIn(false);
+        setTimeout(() => {
+          setBookingMessage('');
+        }, 300); // allow fade-out before hiding
+      }, 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [bookingMessage]);
 
   const fetchSlots = async () => {
     try {
@@ -40,6 +54,9 @@ export default function Schedule() {
   };  
 
   const handleBook = async (slotId) => {
+    const confirm = window.confirm("Are you sure you want to book this appointment?");
+    if (!confirm) return;
+
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
@@ -52,7 +69,7 @@ export default function Schedule() {
         { slotId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setBookingMessage("Booking confirmed!");
+      setBookingMessage("Booking confirmed! A confirmation email has been sent.");
       setIsBookingSuccess(true);
       fetchSlots();
       handleDateChange(date);
@@ -61,7 +78,7 @@ export default function Schedule() {
       setIsBookingSuccess(false);
       console.error(err);
     }
-  };
+  };  
 
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
@@ -125,23 +142,6 @@ export default function Schedule() {
               value={date}
               tileContent={tileContent}
             />
-
-            {bookingMessage && (
-              <div
-                style={{
-                  marginTop: '1.5rem',
-                  padding: '0.75rem',
-                  borderRadius: '5px',
-                  backgroundColor: isBookingSuccess ? '#d4edda' : '#f8d7da',
-                  color: isBookingSuccess ? '#155724' : '#721c24',
-                  border: `1px solid ${isBookingSuccess ? '#c3e6cb' : '#f5c6cb'}`,
-                  textAlign: 'center',
-                  fontSize: '0.95rem'
-                }}
-              >
-                {bookingMessage}
-              </div>
-            )}
           </div>
 
           {/* Slot Info */}
@@ -205,6 +205,35 @@ export default function Schedule() {
                 Select a date with a black dot to view available times and location.
               </p>
             )}
+          </div>
+        </div>
+
+        {/* Confirmation Message */}
+        <div
+          style={{
+            marginTop: '2rem',
+            height: '60px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <div
+            style={{
+              opacity: fadeIn ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+              padding: bookingMessage ? '0.75rem 1rem' : 0,
+              borderRadius: '5px',
+              backgroundColor: isBookingSuccess ? '#d4edda' : '#f8d7da',
+              color: isBookingSuccess ? '#155724' : '#721c24',
+              border: bookingMessage ? `1px solid ${isBookingSuccess ? '#c3e6cb' : '#f5c6cb'}` : 'none',
+              textAlign: 'center',
+              fontSize: '0.95rem',
+              minWidth: bookingMessage ? '300px' : '0',
+            }}
+          >
+            {bookingMessage}
           </div>
         </div>
       </div>

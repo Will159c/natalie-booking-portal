@@ -2,6 +2,8 @@ const TimeSlot = require('../models/TimeSlot');
 const bcrypt = require('bcrypt'); 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
+const { sendEmail } = require('../utils/mailer');
 
 const createSlot = async (req, res) => {
     try {
@@ -39,13 +41,22 @@ const removeSlot = async (req, res) => {
 };  
 
 const unbookSlot = async (req, res) => {
-    try {
-        const { slotId } = req.body;
-        await TimeSlot.findByIdAndUpdate(slotId, { isBooked: false, user: null });
-        res.status(200).json({ message: 'Slot unbooked successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error unbooking slot', error: error.message });
+  try {
+    const { slotId } = req.body;
+
+    if (!slotId) {
+      return res.status(400).json({ message: "Missing slotId" });
     }
+
+    await TimeSlot.findByIdAndUpdate(slotId, {
+      isBooked: false,
+      bookedBy: null, 
+    });
+
+    res.status(200).json({ message: 'Slot unbooked successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error unbooking slot', error: error.message });
+  }
 };
 
 const getBookedSlots = async (req, res) => {
@@ -57,29 +68,55 @@ const getBookedSlots = async (req, res) => {
     }
   };  
 
-const bookSlot = async (req, res) => {
+  const bookSlot = async (req, res) => {
     try {
+      console.log("REQ.USER:", req.user); // Log this
+  
       const { slotId } = req.body;
-      const token = req.headers.authorization?.split(" ")[1];
+      const userId = req.user?.userId;
   
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-  
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userId = decoded.userId;
+      if (!userId) {
+        console.log("No userId found in token");
+        return res.status(401).json({ message: "Unauthorized - no user ID" });
+      }
   
       const slot = await TimeSlot.findById(slotId);
-      if (!slot) return res.status(404).json({ message: "Slot not found" });
-      if (slot.isBooked) return res.status(400).json({ message: "Slot already booked" });
+      if (!slot) {
+        console.log("Slot not found");
+        return res.status(404).json({ message: "Slot not found" });
+      }
   
-      slot.isBooked = true;
+      if (slot.isBooked || slot.bookedBy) {
+        console.log("Slot already booked");
+        return res.status(400).json({ message: "This slot is already booked" });
+      }
+  
       slot.bookedBy = userId;
+      slot.isBooked = true;
       await slot.save();
   
-      res.status(200).json({ message: "Slot booked successfully!" });
+      const user = await User.findById(userId);
+      if (!user) {
+        console.log("User not found");
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      await sendEmail(user.email, {
+        subject: 'Appointment Confirmation',
+        html: `<p>Hello ${user.name},</p>
+              <p>Your appointment has been confirmed for <strong>${slot.date}</strong> at <strong>${slot.time}</strong>.</p>
+              <p>Location: ${slot.location}</p>
+              <p>Thank you!</p>`
+      });
+  
+      console.log("Booking success!");
+      res.status(200).json({ message: 'Slot booked successfully' });
+  
     } catch (err) {
+      console.error("Booking failed:", err.message);
       res.status(500).json({ message: "Booking failed", error: err.message });
     }
-  };
+  };  
 
   const getMyBookings = async (req, res) => {
     try {
