@@ -13,6 +13,7 @@ export default function AdminDashboard() {
   const [bookedSlots, setBookedSlots] = useState([]);
 
   const token = localStorage.getItem("adminToken");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchSlots();
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
 
   const fetchSlots = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/slots/getAvailableSlots");
+      const res = await axios.post(`${API_URL}/api/slots/getAvailableSlots`);
       setSlots(res.data);
     } catch (err) {
       console.error("Error fetching slots", err);
@@ -31,7 +32,7 @@ export default function AdminDashboard() {
   const fetchBookedSlots = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/slots/getBookedSlots",
+        `${API_URL}/api/slots/getBookedSlots`,
         {},
         {
           headers: {
@@ -49,7 +50,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:5000/api/slots/createSlot",
+        `${API_URL}/api/slots/createSlot`,
         { date, time, location },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
   const handleDeleteSlot = async (slotId) => {
     try {
       await axios.post(
-        "http://localhost:5000/api/slots/removeSlot",
+        `${API_URL}/api/slots/removeSlot`,
         { slotId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -89,7 +90,7 @@ export default function AdminDashboard() {
   const handleUnbookSlot = async (slotId) => {
     try {
       await axios.post(
-        "http://localhost:5000/api/slots/unbookSlot",
+        `${API_URL}/api/slots/unbookSlot`,
         { slotId },
         {
           headers: {
@@ -173,7 +174,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <h3 style={{ marginTop: "2rem", textAlign: "center" }}>Existing Slots</h3>
+      <h3 style={{ marginTop: "2rem", textAlign: "center" }}>Available Slots</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {slots.map((slot) => (
           <li
@@ -224,8 +225,8 @@ export default function AdminDashboard() {
               <strong>{formatDate(slot.date)} @ {slot.time}</strong> ({slot.location})
               <br />
               <span>
-                <strong>Booked by:</strong> {slot.bookedBy?.name || "Unknown"} (
-                {slot.bookedBy?.email || "No email"})
+                <strong>Booked by:</strong>{" "}
+                {slot.bookedBy?.name || "Unknown"} ({slot.bookedBy?.email || "No email"})
               </span>
             </div>
             <button

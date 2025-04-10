@@ -1,4 +1,3 @@
-// client/src/App.jsx
 import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import { useUser, UserProvider } from "./UserContext";
 import Login from "./login";
@@ -6,13 +5,12 @@ import Schedule from "./Schedule";
 import Home from "./Home";
 import "./App.css";
 import Register from "./Register";
-import AdminLogin from "./AdminDashboard";
 import AdminDashboard from "./AdminDashboard"; 
 import UserDashboard from './UserDashboard';
 
 function AppContent() {
   const { userName, logout } = useUser();
-  const isAdmin = !!localStorage.getItem("adminToken");
+  const isAdmin = Boolean(localStorage.getItem("adminToken"));
 
   return (
     <Router>
@@ -44,6 +42,7 @@ function AppContent() {
           >
             Home
           </NavLink>
+
           <NavLink
             to="/schedule"
             className={({ isActive }) =>
@@ -111,7 +110,6 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/schedule" element={<Schedule />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
       </Routes>

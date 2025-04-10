@@ -51,7 +51,7 @@ export default function Register() {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
         name,
         email,
         password,
@@ -68,7 +68,7 @@ export default function Register() {
 
   const handleResend = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/resend", { email });
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/resend`, { email });
       setMessage(res.data.message || "Verification email resent!");
       setIsSuccess(true);
     } catch (err) {
@@ -126,38 +126,34 @@ export default function Register() {
       >
         <h2 style={{ textAlign: "center", fontWeight: "500" }}>Register</h2>
 
-        <div style={{ position: "relative" }}>
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={{
-              padding: "0.6rem",
-              width: "100%",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              boxSizing: "border-box"
-            }}
-          />
-        </div>
-        <div style={{ position: "relative" }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{
-              padding: "0.6rem",
-              width: "100%",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              boxSizing: "border-box"
-            }}
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          style={{
+            padding: "0.6rem",
+            width: "100%",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            boxSizing: "border-box",
+          }}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{
+            padding: "0.6rem",
+            width: "100%",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            boxSizing: "border-box",
+          }}
+        />
 
         {/* Password input with toggle */}
         <div style={inputWrapper}>
