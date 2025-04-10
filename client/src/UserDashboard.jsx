@@ -11,9 +11,13 @@ export default function UserDashboard() {
   const fetchBookings = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.post("http://localhost:5000/api/slots/myBookings", {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/slots/myBookings`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setBookings(res.data);
     } catch (err) {
       console.error("Error fetching bookings:", err);

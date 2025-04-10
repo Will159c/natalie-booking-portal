@@ -26,7 +26,7 @@ export default function Schedule() {
         setFadeIn(false);
         setTimeout(() => {
           setBookingMessage('');
-        }, 300); // allow fade-out before hiding
+        }, 300);
       }, 4000);
       return () => clearTimeout(timeout);
     }
@@ -34,7 +34,7 @@ export default function Schedule() {
 
   const fetchSlots = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/slots/getAvailableSlots');
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/slots/getAvailableSlots`);
       setAvailableSlots(res.data);
     } catch (err) {
       console.error('Failed to load available slots:', err);
@@ -65,7 +65,7 @@ export default function Schedule() {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/slots/bookSlot',
+        `${import.meta.env.VITE_API_BASE_URL}/api/slots/bookSlot`,
         { slotId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

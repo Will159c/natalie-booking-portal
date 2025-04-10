@@ -18,7 +18,7 @@ const sendEmail = (to, { subject, html }) => {
 };
 
 const sendVerificationEmail = (to, token) => {
-  const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+  const BASE_URL = process.env.BASE_URL || "https://natalie-booking-portal.railway.internal";
   const url = `${BASE_URL}/api/auth/verify?token=${token}`;
 
   return sendEmail(to, {

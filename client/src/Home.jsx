@@ -11,7 +11,7 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "2rem", backgroundColor: "#fafafa" }}>
       <h1 style={{ textAlign: "center", fontSize: "2.5rem", marginBottom: "2rem" }}>
         Welcome to Natalie's Booking Portal
       </h1>
@@ -71,7 +71,12 @@ export default function Home() {
         {images.map((img, i) => (
           <div
             key={i}
-            style={{ cursor: "pointer", transition: "transform 0.3s ease" }}
+            style={{
+              cursor: "pointer",
+              transition: "transform 0.3s ease",
+              borderRadius: "10px",
+              overflow: "hidden"
+            }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             onClick={() => setLightboxImage(img)}
@@ -79,7 +84,7 @@ export default function Home() {
             <img
               src={`/${img}`}
               alt={`Nail design ${i + 2}`}
-              style={{ width: "100%", borderRadius: "10px" }}
+              style={{ width: "100%", display: "block" }}
             />
           </div>
         ))}
@@ -100,6 +105,7 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "center",
             zIndex: 1000,
+            cursor: "zoom-out",
           }}
         >
           <img
@@ -121,7 +127,6 @@ export default function Home() {
       <div style={{ textAlign: "center", marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>Contact Info</h2>
 
-        {/* Horizontal Row */}
         <div
           style={{
             display: "flex",
@@ -136,7 +141,7 @@ export default function Home() {
             📞 (661) 313-3802
           </p>
           <p style={{ fontSize: "1rem", color: "#444", margin: 0 }}>
-            📧 <a href="mailto:natalie@example.com">nx3nails@gmail.com</a>
+            📧 <a href="mailto:nx3nails@gmail.com">nx3nails@gmail.com</a>
           </p>
           <a
             href="https://www.instagram.com/nx3nails?igsh=NTc4MTIwNjQ2YQ=="
@@ -152,7 +157,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Underneath Text */}
         <p style={{ fontSize: "0.95rem", color: "#777" }}>
           Reach out to book custom sets or ask questions.
         </p>

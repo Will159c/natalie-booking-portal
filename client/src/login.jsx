@@ -24,7 +24,7 @@ export default function Login() {
         setAttempts(0);
         setIsLocked(false);
         setMessage("");
-        captchaRef.current.reset();
+        captchaRef.current?.reset();
         setCaptchaValue(null);
       }, 30000);
     }
@@ -32,43 +32,42 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     if (isLocked) return;
-  
+
     if (!email.trim() || !password.trim()) {
       setIsSuccess(false);
       setMessage("Invalid email or password");
       return;
     }
-  
-    // Only require CAPTCHA if attempts are 2 or more
+
     if (attempts >= 2 && !captchaValue) {
       setIsSuccess(false);
       setMessage("Please complete the CAPTCHA");
       return;
     }
-  
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
         email,
         password,
-        captcha: captchaValue, 
+        captcha: captchaValue,
       });
-  
+
       const token = res.data.token;
       const payloadBase64 = token.split(".")[1];
       const decodedPayload = JSON.parse(atob(payloadBase64));
-  
+
       login(decodedPayload.name, token);
-  
+
       if (decodedPayload.isAdmin) {
         localStorage.setItem("adminToken", token);
       }
-  
+
       setMessage("Login successful!");
       setIsSuccess(true);
       setAttempts(0);
-  
+
       setTimeout(() => {
         navigate("/");
       }, 1000);
@@ -76,14 +75,13 @@ export default function Login() {
       setIsSuccess(false);
       setMessage("Invalid email or password");
       setAttempts((prev) => prev + 1);
-  
-      // Reset CAPTCHA only if it's visible
+
       if (captchaRef.current && attempts >= 2) {
         captchaRef.current.reset();
         setCaptchaValue(null);
       }
     }
-  };  
+  };
 
   return (
     <div
@@ -145,7 +143,6 @@ export default function Login() {
             onChange={(value) => setCaptchaValue(value)}
           />
         )}
-
 
         <button
           type="submit"
