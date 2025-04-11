@@ -13,7 +13,9 @@ export default function AdminDashboard() {
   const [bookedSlots, setBookedSlots] = useState([]);
 
   const token = localStorage.getItem("adminToken");
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+  console.log("API URL", API_URL);
 
   useEffect(() => {
     fetchSlots();
