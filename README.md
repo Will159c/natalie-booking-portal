@@ -43,9 +43,9 @@ An appointment booking web application for Natalie Peck's nail services — buil
 
 ## 🚀 Getting Started (Local)
 
+```bash
 ### 1. Clone the Repo
 
-```bash
 git clone https://github.com/your-username/natalie-booking-portal.git
 cd natalie-booking-portal
 
