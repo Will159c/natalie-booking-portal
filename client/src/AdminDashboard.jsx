@@ -3,7 +3,8 @@ import axios from "axios";
 
 export default function AdminDashboard() {
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [location, setLocation] = useState("");
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(null);
@@ -15,7 +16,22 @@ export default function AdminDashboard() {
   const token = localStorage.getItem("adminToken");
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-  console.log("API URL", API_URL);
+  // Helper to convert time string to Date for sorting
+  const timeToDate = (dateStr, timeStr) => new Date(`${dateStr} ${timeStr}`);
+
+  // Generate 6:00 AM – 10:00 PM in 15-minute steps
+  const timeOptions = Array.from({ length: (22 - 6 + 1) * 4 }, (_, i) => {
+    const totalMinutes = i * 15;
+    const hour = 6 + Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+    const date = new Date();
+    date.setHours(hour, minute);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  });
 
   useEffect(() => {
     fetchSlots();
@@ -37,9 +53,7 @@ export default function AdminDashboard() {
         `${API_URL}/api/slots/getBookedSlots`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setBookedSlots(res.data);
@@ -53,13 +67,14 @@ export default function AdminDashboard() {
     try {
       await axios.post(
         `${API_URL}/api/slots/createSlot`,
-        { date, time, location },
+        { date, startTime, endTime, location },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage("Slot created successfully!");
+      setMessage("Time block created successfully!");
       setIsSuccess(true);
       setDate("");
-      setTime("");
+      setStartTime("");
+      setEndTime("");
       setLocation("");
       fetchSlots();
       fetchBookedSlots();
@@ -94,11 +109,7 @@ export default function AdminDashboard() {
       await axios.post(
         `${API_URL}/api/slots/unbookSlot`,
         { slotId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchSlots();
       fetchBookedSlots();
@@ -129,13 +140,22 @@ export default function AdminDashboard() {
           onChange={(e) => setDate(e.target.value)}
           required
         />
-        <input
-          type="text"
-          value={time}
-          placeholder="Time (e.g. 1:00 PM)"
-          onChange={(e) => setTime(e.target.value)}
-          required
-        />
+        <select value={startTime} onChange={(e) => setStartTime(e.target.value)} required>
+          <option value="">Start Time</option>
+          {timeOptions.map((time) => (
+            <option key={time} value={time}>
+              {time}
+            </option>
+          ))}
+        </select>
+        <select value={endTime} onChange={(e) => setEndTime(e.target.value)} required>
+          <option value="">End Time</option>
+          {timeOptions.map((time) => (
+            <option key={time} value={time}>
+              {time}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           value={location}
@@ -178,76 +198,84 @@ export default function AdminDashboard() {
 
       <h3 style={{ marginTop: "2rem", textAlign: "center" }}>Available Slots</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {slots.map((slot) => (
-          <li
-            key={slot._id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: "1px solid #ccc",
-              padding: "0.5rem 0",
-            }}
-          >
-            <span>
-              {formatDate(slot.date)} @ {slot.time} ({slot.location})
-            </span>
-            <button
-              onClick={() => handleDeleteSlot(slot._id)}
+        {[...slots]
+          .sort((a, b) => timeToDate(a.date, a.time) - timeToDate(b.date, b.time))
+          .map((slot) => (
+            <li
+              key={slot._id}
               style={{
-                marginLeft: "1rem",
-                backgroundColor: "#f44336",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                padding: "0.25rem 0.5rem",
-                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "1px solid #ccc",
+                padding: "0.5rem 0",
               }}
             >
-              Delete
-            </button>
-          </li>
-        ))}
+              <span>
+                {formatDate(slot.date)} @ {slot.time} ({slot.location})
+              </span>
+              <button
+                onClick={() => handleDeleteSlot(slot._id)}
+                style={{
+                  marginLeft: "1rem",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "0.25rem 0.5rem",
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </li>
+          ))}
       </ul>
 
       <h3 style={{ marginTop: "3rem", textAlign: "center" }}>Booked Slots</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {bookedSlots.map((slot) => (
-          <li
-            key={slot._id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: "1px solid #ddd",
-              padding: "0.5rem 0",
-            }}
-          >
-            <div>
-              <strong>{formatDate(slot.date)} @ {slot.time}</strong> ({slot.location})
-              <br />
-              <span>
-                <strong>Booked by:</strong>{" "}
-                {slot.bookedBy?.name || "Unknown"} ({slot.bookedBy?.email || "No email"})
-              </span>
-            </div>
-            <button
-              onClick={() => handleUnbookSlot(slot._id)}
+        {[...bookedSlots]
+          .sort((a, b) => timeToDate(a.date, a.time) - timeToDate(b.date, b.time))
+          .map((slot) => (
+            <li
+              key={slot._id}
               style={{
-                marginLeft: "1rem",
-                backgroundColor: "#f44336",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                padding: "0.25rem 0.5rem",
-                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "1px solid #ddd",
+                padding: "0.5rem 0",
               }}
             >
-              Cancel Booking
-            </button>
-          </li>
-        ))}
+              <div>
+                <strong>
+                  {formatDate(slot.date)} @ {slot.time}
+                </strong>{" "}
+                ({slot.location})
+                <br />
+                <span>
+                  <strong>Booked by:</strong> {slot.bookedBy?.name || "Unknown"} (
+                  {slot.bookedBy?.email || "No email"})
+                </span>
+              </div>
+              <button
+                onClick={() => handleUnbookSlot(slot._id)}
+                style={{
+                  marginLeft: "1rem",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "0.25rem 0.5rem",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel Booking
+              </button>
+            </li>
+          ))}
       </ul>
     </div>
   );
 }
+
