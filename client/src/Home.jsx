@@ -5,7 +5,7 @@ export default function Home() {
 
   const images = [
     "1.jpg",
-    "nails(2).JPG",
+    "2.jpg",
     "3.jpg",
     "4.jpg",
   ];
