@@ -4,10 +4,10 @@ export default function Home() {
   const [lightboxImage, setLightboxImage] = useState(null);
 
   const images = [
+    "1.jpg",
     "nails(2).JPG",
-    "nails(3).JPG",
-    "nails(4).JPG",
-    "nails(5).JPG",
+    "3.jpg",
+    "4.jpg",
   ];
 
   return (

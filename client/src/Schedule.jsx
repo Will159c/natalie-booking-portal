@@ -24,9 +24,7 @@ export default function Schedule() {
       setFadeIn(true);
       const timeout = setTimeout(() => {
         setFadeIn(false);
-        setTimeout(() => {
-          setBookingMessage('');
-        }, 300);
+        setTimeout(() => setBookingMessage(''), 300);
       }, 4000);
       return () => clearTimeout(timeout);
     }
@@ -42,19 +40,19 @@ export default function Schedule() {
   };
 
   const handleDateChange = (newDate) => {
-    if (newDate.toDateString() !== date.toDateString()) {
-      setBookingMessage(""); 
-    }
+    if (newDate.toDateString() !== date.toDateString()) setBookingMessage('');
     setDate(newDate);
+
     const dayStr = newDate.toISOString().split('T')[0];
-    const slotsForDay = availableSlots.filter(slot =>
-      new Date(slot.date).toISOString().split('T')[0] === dayStr
-    );
-    setSelectedDateSlots(slotsForDay);
-  };  
+    const slotsForDay = availableSlots
+      .filter((slot) => new Date(slot.date).toISOString().split('T')[0] === dayStr)
+      .sort((a, b) => new Date(`${a.date} ${a.time}`) - new Date(`${b.date} ${b.time}`));
+
+    setSelectedDateSlots(slotsForDay); // clears if no match
+  };
 
   const handleBook = async (slotId) => {
-    const confirm = window.confirm("Are you sure you want to book this appointment?");
+    const confirm = window.confirm('Are you sure you want to book this appointment?');
     if (!confirm) return;
 
     const token = localStorage.getItem('token');
@@ -69,31 +67,33 @@ export default function Schedule() {
         { slotId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setBookingMessage("Booking confirmed! A confirmation email has been sent.");
+      setBookingMessage('Booking confirmed! A confirmation email has been sent.');
       setIsBookingSuccess(true);
       fetchSlots();
       handleDateChange(date);
     } catch (err) {
-      setBookingMessage("Booking failed. Please try again.");
+      setBookingMessage('Booking failed. Please try again.');
       setIsBookingSuccess(false);
       console.error(err);
     }
-  };  
+  };
 
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
-      const hasSlot = availableSlots.some(slot =>
-        new Date(slot.date).toISOString().split('T')[0] === date.toISOString().split('T')[0]
+      const hasSlot = availableSlots.some(
+        (slot) => new Date(slot.date).toISOString().split('T')[0] === date.toISOString().split('T')[0]
       );
       return hasSlot ? (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.1rem' }}>
-          <span style={{
-            width: '6px',
-            height: '6px',
-            backgroundColor: 'black',
-            borderRadius: '50%',
-            display: 'inline-block'
-          }}></span>
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              backgroundColor: 'black',
+              borderRadius: '50%',
+              display: 'inline-block',
+            }}
+          ></span>
         </div>
       ) : null;
     }
@@ -137,11 +137,7 @@ export default function Schedule() {
               transformOrigin: 'center',
             }}
           >
-            <Calendar
-              onChange={handleDateChange}
-              value={date}
-              tileContent={tileContent}
-            />
+            <Calendar onChange={handleDateChange} value={date} tileContent={tileContent} />
           </div>
 
           {/* Slot Info */}
@@ -159,46 +155,51 @@ export default function Schedule() {
           >
             {selectedDateSlots.length > 0 ? (
               <>
-                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                  {date.toDateString()}
-                </h3>
+                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>{date.toDateString()}</h3>
                 <p>
                   <strong>Location:</strong> {selectedDateSlots[0]?.location}
                 </p>
                 <p>
                   <strong>Available Times:</strong>
                 </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {selectedDateSlots.map((slot, i) => (
-                    <li
-                      key={i}
-                      style={{
-                        marginBottom: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        justifyContent: 'space-between'
-                      }}
-                    >
-                      <span style={{ fontSize: '1rem', marginRight: '0.5rem' }}>
-                        {slot.time}
-                      </span>
-                      <button
-                        onClick={() => handleBook(slot._id)}
+                <div
+                  style={{
+                    overflowY: 'auto',
+                    maxHeight: '250px',
+                    paddingRight: '0.5rem',
+                    marginTop: '0.5rem',
+                  }}
+                >
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {selectedDateSlots.map((slot, i) => (
+                      <li
+                        key={i}
                         style={{
-                          padding: '0.35rem 0.75rem',
-                          background: '#222',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '0.85rem',
-                          cursor: 'pointer',
+                          marginBottom: '0.75rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
                         }}
                       >
-                        Book
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                        <span style={{ fontSize: '1rem', marginRight: '0.5rem' }}>{slot.time}</span>
+                        <button
+                          onClick={() => handleBook(slot._id)}
+                          style={{
+                            padding: '0.35rem 0.75rem',
+                            background: '#222',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Book
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </>
             ) : (
               <p style={{ textAlign: 'center', marginTop: '2rem', color: '#666' }}>

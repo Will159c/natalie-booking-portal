@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const { startCleanupJob } = require('./utils/cleanupExpiredSlots');
+
 
 const app = express();
 
@@ -40,6 +42,7 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => {
   console.log('✅ MongoDB connected');
+  startCleanupJob(); // 🧹 this starts the cron job
   app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 })
 .catch(err => {

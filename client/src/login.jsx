@@ -41,7 +41,9 @@ export default function Login() {
       return;
     }
 
-    if (attempts >= 2 && !captchaValue) {
+    const requireCaptcha = attempts >= 2;
+
+    if (requireCaptcha && !captchaValue) {
       setIsSuccess(false);
       setMessage("Please complete the CAPTCHA");
       return;
@@ -51,7 +53,7 @@ export default function Login() {
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
         email,
         password,
-        captcha: captchaValue,
+        captcha: requireCaptcha ? captchaValue : undefined,
       });
 
       const token = res.data.token;
@@ -67,16 +69,21 @@ export default function Login() {
       setMessage("Login successful!");
       setIsSuccess(true);
       setAttempts(0);
+      setCaptchaValue(null);
+      captchaRef.current?.reset();
 
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (err) {
       setIsSuccess(false);
-      setMessage("Invalid email or password");
+
+      const backendMessage = err.response?.data?.message;
+      setMessage(backendMessage || "Invalid email or password");
+
       setAttempts((prev) => prev + 1);
 
-      if (captchaRef.current && attempts >= 2) {
+      if (captchaRef.current && attempts + 1 >= 2) {
         captchaRef.current.reset();
         setCaptchaValue(null);
       }
@@ -138,7 +145,7 @@ export default function Login() {
 
         {attempts >= 2 && (
           <ReCAPTCHA
-            sitekey="6LdXCxMrAAAAAJJKMBasyoQRsWCgraEN_cM38dNm"
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
             ref={captchaRef}
             onChange={(value) => setCaptchaValue(value)}
           />
@@ -161,19 +168,29 @@ export default function Login() {
           Login
         </button>
 
-        <span
-          onClick={() => navigate("/register")}
-          style={{
-            fontSize: "0.85rem",
-            color: "#007bff",
-            marginTop: "0.25rem",
-            textAlign: "center",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
-          or register
-        </span>
+        <div style={{ textAlign: "center", fontSize: "0.85rem" }}>
+          <span
+            onClick={() => navigate("/register")}
+            style={{
+              color: "#007bff",
+              cursor: "pointer",
+              textDecoration: "underline",
+              marginRight: "0.5rem",
+            }}
+          >
+            or register
+          </span>
+          <span
+            onClick={() => navigate("/forgot-password")}
+            style={{
+              color: "#007bff",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            forgot password?
+          </span>
+        </div>
 
         {message && (
           <div

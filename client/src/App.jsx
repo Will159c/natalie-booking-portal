@@ -7,6 +7,8 @@ import "./App.css";
 import Register from "./Register";
 import AdminDashboard from "./AdminDashboard"; 
 import UserDashboard from './UserDashboard';
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 
 function AppContent() {
   const { userName, logout } = useUser();
@@ -112,6 +114,8 @@ function AppContent() {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
