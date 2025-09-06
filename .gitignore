@@ -29,3 +29,7 @@ server/.env
 *.njsproj
 *.sln
 *.sw?
+
+server/node_modules/
+dist/
+build/
